@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -ex
+
+make-cadir {{ openvpn_workdir }}/easy-rsa || true
+cd {{ openvpn_workdir }}/easy-rsa
+./easyrsa init-pki
+./easyrsa build-ca
+./easyrsa gen-req {{ openvpn_server_name }} nopass
+./easyrsa gen-dh
+./easyrsa sign-req server {{ openvpn_server_name }}
+cp pki/dh.pem pki/ca.crt pki/issued/{{ openvpn_server_name }}.crt pki/private/{{ openvpn_server_name }}.key {{ openvpn_workdir }}
+cd -

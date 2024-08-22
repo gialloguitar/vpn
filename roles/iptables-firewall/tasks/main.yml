@@ -1,0 +1,24 @@
+---
+- name: Create script
+  ansible.builtin.template:
+    src: iptables-firewall.sh.j2
+    dest: "{{ iptables_firewall_script_path }}/iptables-firewall.sh"
+    mode: "0755"
+  notify: restart iptables-firewall
+  tags: iptables-firewall
+
+- name: Create service unit file
+  ansible.builtin.template:
+    mode: "0644"
+    src: iptables-firewall.service.j2
+    dest: "{{ iptables_firewall_service_path }}/iptables-firewall.service"
+  notify: Restart iptables-firewall
+  tags: iptables-firewall
+
+- name: Start service
+  ansible.builtin.systemd:
+    name: iptables-firewall
+    state: started
+    enabled: true
+    daemon-reload: true
+  tags: iptables-firewall

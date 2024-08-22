@@ -1,0 +1,38 @@
+---
+openvpn_install_packages:
+  - easy-rsa
+  - openvpn
+
+openvpn_workdir: "/etc/openvpn"
+openvpn_server_addr: ""
+openvpn_server_name: "openvpn-server"
+openvpn_server_subnet: "10.255.255.0 255.255.255.0"
+
+openvpn_server_conf_local: 0.0.0.0
+openvpn_server_conf_port: 443
+openvpn_server_conf_proto: tcp
+openvpn_server_conf_dev: tun
+openvpn_server_conf_ca: ca.crt
+openvpn_server_conf_cert: "{{ openvpn_server_name }}.crt"
+openvpn_server_conf_key: "{{ openvpn_server_name }}.key"
+openvpn_server_conf_dh: dh.pem
+openvpn_server_conf_topology: subnet
+openvpn_server_conf_server: "{{ openvpn_server_subnet }}"
+openvpn_server_conf_ifconfig_pool_persist: ipp.txt
+openvpn_server_conf_client_config_dir: ccd
+openvpn_server_conf_push:
+  - "redirect-gateway def1"
+  - "dhcp-option DNS 1.1.1.1"
+  - "compress lz4-v2"
+openvpn_server_conf_duplicate_cn: duplicate-cn
+openvpn_server_conf_keepalive: 10 120
+openvpn_server_conf_cipher: AES-256-CBC
+openvpn_server_conf_compress: "lz4-v2"
+openvpn_server_conf_persist_key: persist-key
+openvpn_server_conf_persist_tun: persist-tun
+openvpn_server_conf_status: /var/log/openvpn/openvpn-status.log
+openvpn_server_conf_log: /var/log/openvpn/openvpn.log
+openvpn_server_conf_log_append: /var/log/openvpn/openvpn.log
+openvpn_server_conf_verb: 4
+openvpn_server_conf_explicit_exit_notify: 0
+openvpn_server_conf_tun_mtu: 1400

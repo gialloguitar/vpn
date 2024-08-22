@@ -1,0 +1,29 @@
+local {{ openvpn_server_conf_local }}
+port  {{ openvpn_server_conf_port }}
+proto {{ openvpn_server_conf_proto }}
+dev {{ openvpn_server_conf_dev }}
+ca {{ openvpn_server_conf_ca }}
+cert {{ openvpn_server_conf_cert }}
+key {{ openvpn_server_conf_key }}
+dh {{ openvpn_server_conf_dh }}
+topology {{ openvpn_server_conf_topology }}
+server {{ openvpn_server_conf_server }}
+ifconfig-pool-persist {{ openvpn_server_conf_ifconfig_pool_persist }}
+client-config-dir  {{ openvpn_server_conf_client_config_dir }}
+keepalive {{ openvpn_server_conf_keepalive }}
+cipher {{ openvpn_server_conf_cipher }}
+compress {{ openvpn_server_conf_compress }}
+status {{ openvpn_server_conf_status }}
+log {{ openvpn_server_conf_log }}
+log-append {{ openvpn_server_conf_log_append }}
+tun-mtu {{ openvpn_server_conf_tun_mtu }}
+verb {{ openvpn_server_conf_verb }}
+explicit-exit-notify {{ openvpn_server_conf_explicit_exit_notify }}
+
+{% for push in openvpn_server_conf_push %}
+push "{{ push }}"
+{% endfor %}
+
+{{ openvpn_server_conf_duplicate_cn }}
+{{ openvpn_server_conf_persist_key }}
+{{ openvpn_server_conf_persist_tun }}

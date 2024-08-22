@@ -1,0 +1,78 @@
+#!/bin/sh
+
+set -ex
+
+INF={{ iptables_firewall_interface }}
+PRIVATE={{ iptables_firewall_private_subnet }}
+LOOP=127.0.0.1
+
+# iptables configuration
+firewall_start() {
+  # Prevent external packets from using loopback addr
+  iptables -A INPUT -i $INF -s $LOOP -j DROP
+  iptables -A FORWARD -i $INF -s $LOOP -j DROP
+  iptables -A INPUT -i $INF -d $LOOP -j DROP
+  iptables -A FORWARD -i $INF -d $LOOP -j DROP
+
+  # Anything coming from the Internet should have a real Internet address
+  iptables -A FORWARD -i $INF -s 192.168.0.0/16 -j DROP
+  iptables -A FORWARD -i $INF -s 172.16.0.0/12 -j DROP
+  iptables -A FORWARD -i $INF -s 10.0.0.0/8 -j DROP
+  iptables -A INPUT -i $INF -s 192.168.0.0/16 -j DROP
+  iptables -A INPUT -i $INF -s 172.16.0.0/12 -j DROP
+  iptables -A INPUT -i $INF -s 10.0.0.0/8 -j DROP
+
+  # Allow local loopback
+  iptables -A INPUT -s $LOOP -j ACCEPT
+  iptables -A INPUT -d $LOOP -j ACCEPT
+
+  # Allow incoming pings (can be disabled)
+  iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+  # Allow service ports
+  iptables -A INPUT -p udp --dport 1194 -j ACCEPT
+  iptables -A INPUT -p tcp --dport 1194 -j ACCEPT
+  iptables -A INPUT -p udp --dport https -j ACCEPT
+  iptables -A INPUT -p tcp --dport https -j ACCEPT
+  iptables -A INPUT -p tcp --dport http -j ACCEPT
+  iptables -A INPUT -p tcp --dport ssh -j ACCEPT
+
+  iptables -A INPUT -i tun+ -j ACCEPT
+  iptables -A FORWARD -i tun+ -j ACCEPT
+
+  # Allow packets from private subnets
+  iptables -A INPUT -i $INF -j ACCEPT
+  iptables -A FORWARD -i $INF -j ACCEPT
+
+  # Keep state of connections from local machine and private subnets
+  iptables -A OUTPUT -m state --state NEW -o $INF -j ACCEPT
+  iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+  iptables -A FORWARD -m state --state NEW -o $INF -j ACCEPT
+  iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+  # Masquerade local subnet
+  iptables -t nat -A POSTROUTING -s $PRIVATE -o $INF -j MASQUERADE
+}
+
+# clear iptables configuration
+firewall_stop() {
+  iptables -t nat -F
+  iptables -t mangle -F
+  iptables -t filter -F
+  iptables -X
+  iptables -P INPUT   ACCEPT
+  iptables -P FORWARD ACCEPT
+  iptables -P OUTPUT  ACCEPT
+}
+
+case "$1" in
+  start|restart)
+    echo "Starting firewall"
+    firewall_stop
+    firewall_start
+    ;;
+  stop)
+    echo "Stopping firewall"
+    firewall_stop
+    ;;
+esac

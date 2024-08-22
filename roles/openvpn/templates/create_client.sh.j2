@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -ex
+
+if [ "$1" = "" ]; then
+  echo "Usage: $0 <username>"
+  exit 1
+fi
+
+USER=$1
+SERVER={{ openvpn_server_addr }}
+
+cd /etc/openvpn/easy-rsa
+./easyrsa gen-req $USER nopass
+./easyrsa sign-req client $USER
+cd -
+
+echo "# $USER
+client
+tls-client
+nobind
+verb {{ openvpn_server_conf_verb }}
+dev {{ openvpn_server_conf_dev }}
+proto {{ openvpn_server_conf_proto }}
+remote $SERVER {{ openvpn_server_conf_port }}
+{{ openvpn_server_conf_persist_key }}
+{{ openvpn_server_conf_persist_tun }}
+
+<ca>
+$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/ca.crt)
+</ca>
+
+<cert>
+$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/easy-rsa/pki/issued/$USER.crt)
+</cert>
+
+<key>
+$(sed -n '/BEGIN PRIVATE KEY/,/END PRIVATE KEY/p' /etc/openvpn/easy-rsa/pki/private/$USER.key)
+</key>" > /etc/openvpn/client/$USER.ovpn
