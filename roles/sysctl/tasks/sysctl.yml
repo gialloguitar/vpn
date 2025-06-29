@@ -1,0 +1,11 @@
+---
+- name: Set sysctl params
+  loop: "{{ sysctl_params | dict2items }}"
+  loop_control:
+    loop_var: p
+  ansible.posix.sysctl:
+    state: present
+    name: "{{ p.key }}"
+    value: "{{ p.value }}"
+    sysctl_set: true
+    reload: true

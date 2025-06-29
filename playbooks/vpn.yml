@@ -1,7 +1,9 @@
 ---
-- hosts: vpn
+- name: VPN Setup
+  hosts: vpn
   become: true
   gather_facts: true
   roles:
+    - sysctl
     - openvpn
     - iptables-firewall

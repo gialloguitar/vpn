@@ -1,0 +1,4 @@
+---
+- name: Sysctl tasks
+  tags: sysctl
+  ansible.builtin.import_tasks: sysctl.yml

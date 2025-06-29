@@ -27,7 +27,7 @@ remote $SERVER {{ openvpn_server_conf_port }}
 {{ openvpn_server_conf_persist_tun }}
 
 <ca>
-$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/ca.crt)
+$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/easy-rsa/pki/ca.crt)
 </ca>
 
 <cert>
