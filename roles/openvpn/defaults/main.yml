@@ -18,16 +18,13 @@ openvpn_server_conf_key: "/etc/openvpn/easy-rsa/pki/private/{{ openvpn_server_na
 openvpn_server_conf_dh: "/etc/openvpn/easy-rsa/pki/dh.pem"
 openvpn_server_conf_topology: subnet
 openvpn_server_conf_server: "{{ openvpn_server_subnet }}"
-openvpn_server_conf_ifconfig_pool_persist: ipp.txt
 openvpn_server_conf_client_config_dir: ccd
 openvpn_server_conf_push:
   - "redirect-gateway def1 bypass-dhcp"
   - "dhcp-option DNS 1.1.1.1"
 openvpn_server_conf_duplicate_cn: duplicate-cn
 openvpn_server_conf_keepalive: 10 120
-openvpn_server_conf_cipher: AES-256-CBC
-openvpn_server_conf_persist_key: persist-key
-openvpn_server_conf_persist_tun: persist-tun
+openvpn_server_conf_cipher: AES-128-GCM
 openvpn_server_conf_status: /var/log/openvpn/openvpn-status.log
 openvpn_server_conf_log: /var/log/openvpn/openvpn.log
 openvpn_server_conf_log_append: /var/log/openvpn/openvpn.log

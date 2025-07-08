@@ -15,8 +15,10 @@
 
 - name: Create scripts
   with_items:
-    - create_client.sh
+    - create_client_user_pass.sh
+    - create_client_cert.sh
     - server_certs.sh
+    - auth.sh
   loop_control:
     loop_var: script
   ansible.builtin.template:

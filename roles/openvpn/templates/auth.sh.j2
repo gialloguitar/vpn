@@ -1,0 +1,17 @@
+#!/bin/bash
+
+CREDENTIALS_FILE="$1"
+
+USER=$(head -n1 "$CREDENTIALS_FILE")
+PASS=$(tail -n1 "$CREDENTIALS_FILE")
+
+if [[ -f /etc/openvpn/client/$USER ]]
+then
+  if grep -r $PASS /etc/openvpn/client/$USER
+  then
+    exit
+  fi
+fi
+
+logger -t openvpn-auth "AUTH FAIL for user: $USER"
+exit 1
