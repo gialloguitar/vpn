@@ -22,6 +22,7 @@ openvpn_server_conf_client_config_dir: ccd
 openvpn_server_conf_push:
   - "redirect-gateway def1 bypass-dhcp"
   - "dhcp-option DNS 1.1.1.1"
+  - "route 172.16.8.0 255.255.252.0"
 openvpn_server_conf_duplicate_cn: duplicate-cn
 openvpn_server_conf_keepalive: 10 120
 openvpn_server_conf_cipher: AES-128-GCM

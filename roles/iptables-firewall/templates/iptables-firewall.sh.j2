@@ -2,25 +2,32 @@
 
 set -ex
 
-INF={{ iptables_firewall_interface }}
-PRIVATE={{ iptables_firewall_private_subnet }}
+INF_0={{ iptables_firewall_interface_0 }}
+INF_1={{ iptables_firewall_interface_1 }}
+PRIVATE_0={{ iptables_firewall_private_subnet_0 }}
+PRIVATE_1={{ iptables_firewall_private_subnet_1 }}
 LOOP=127.0.0.1
 
 # iptables configuration
 firewall_start() {
   # Prevent external packets from using loopback addr
-  iptables -A INPUT -i $INF -s $LOOP -j DROP
-  iptables -A FORWARD -i $INF -s $LOOP -j DROP
-  iptables -A INPUT -i $INF -d $LOOP -j DROP
-  iptables -A FORWARD -i $INF -d $LOOP -j DROP
+  iptables -A INPUT -i $INF_0 -s $LOOP -j DROP
+  iptables -A FORWARD -i $INF_0 -s $LOOP -j DROP
+  iptables -A INPUT -i $INF_0 -d $LOOP -j DROP
+  iptables -A FORWARD -i $INF_0 -d $LOOP -j DROP
+
+  iptables -A INPUT -i $INF_1 -s $LOOP -j DROP
+  iptables -A FORWARD -i $INF_1 -s $LOOP -j DROP
+  iptables -A INPUT -i $INF_1 -d $LOOP -j DROP
+  iptables -A FORWARD -i $INF_1 -d $LOOP -j DROP
 
   # Anything coming from the Internet should have a real Internet address
-  iptables -A FORWARD -i $INF -s 192.168.0.0/16 -j DROP
-  iptables -A FORWARD -i $INF -s 172.16.0.0/12 -j DROP
-  iptables -A FORWARD -i $INF -s 10.0.0.0/8 -j DROP
-  iptables -A INPUT -i $INF -s 192.168.0.0/16 -j DROP
-  iptables -A INPUT -i $INF -s 172.16.0.0/12 -j DROP
-  iptables -A INPUT -i $INF -s 10.0.0.0/8 -j DROP
+  iptables -A FORWARD -i $INF_0 -s 192.168.0.0/16 -j DROP
+  iptables -A FORWARD -i $INF_0 -s 172.16.0.0/12 -j DROP
+  iptables -A FORWARD -i $INF_0 -s 10.0.0.0/8 -j DROP
+  iptables -A INPUT -i $INF_0 -s 192.168.0.0/16 -j DROP
+  iptables -A INPUT -i $INF_0 -s 172.16.0.0/12 -j DROP
+  iptables -A INPUT -i $INF_0 -s 10.0.0.0/8 -j DROP
 
   # Allow local loopback
   iptables -A INPUT -s $LOOP -j ACCEPT
@@ -41,17 +48,20 @@ firewall_start() {
   iptables -A FORWARD -i tun+ -j ACCEPT
 
   # Allow packets from private subnets
-  iptables -A INPUT -i $INF -j ACCEPT
-  iptables -A FORWARD -i $INF -j ACCEPT
+  iptables -A INPUT -i $INF_0 -j ACCEPT
+  iptables -A FORWARD -i $INF_0 -j ACCEPT
+  iptables -A INPUT -i $INF_1 -j ACCEPT
+  iptables -A FORWARD -i $INF_1 -j ACCEPT
 
   # Keep state of connections from local machine and private subnets
-  iptables -A OUTPUT -m state --state NEW -o $INF -j ACCEPT
+  iptables -A OUTPUT -m state --state NEW -o $INF_0 -j ACCEPT
   iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-  iptables -A FORWARD -m state --state NEW -o $INF -j ACCEPT
+  iptables -A FORWARD -m state --state NEW -o $INF_0 -j ACCEPT
   iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 
   # Masquerade local subnet
-  iptables -t nat -A POSTROUTING -s $PRIVATE -o $INF -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s $PRIVATE_0 -o $INF_0 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s $PRIVATE_1 -o $INF_1 -j MASQUERADE
 }
 
 # clear iptables configuration

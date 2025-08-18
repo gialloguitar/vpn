@@ -1,5 +1,7 @@
 ---
 iptables_firewall_script_path: '/usr/local/bin'
 iptables_firewall_service_path: '/usr/lib/systemd/system'
-iptables_firewall_interface: 'ens2'
-iptables_firewall_private_subnet: '10.255.255.0/24'
+iptables_firewall_interface_0: 'ens2'
+iptables_firewall_interface_1: 'ens5'
+iptables_firewall_private_subnet_0: '10.255.255.0/24'
+iptables_firewall_private_subnet_1: '172.16.8.0/22'
