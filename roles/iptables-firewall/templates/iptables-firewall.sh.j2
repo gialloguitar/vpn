@@ -61,7 +61,7 @@ firewall_start() {
 
   # Masquerade local subnet
   iptables -t nat -A POSTROUTING -s $PRIVATE_0 -o $INF_0 -j MASQUERADE
-  iptables -t nat -A POSTROUTING -s $PRIVATE_1 -o $INF_1 -j MASQUERADE
+  iptables -t nat -A POSTROUTING -s $PRIVATE_1 -o $INF_0 -j MASQUERADE
 }
 
 # clear iptables configuration

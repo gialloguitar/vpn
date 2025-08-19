@@ -2,6 +2,7 @@
 openvpn_install_packages:
   - easy-rsa
   - openvpn
+  - conntrack
 
 openvpn_workdir: "/etc/openvpn"
 openvpn_server_addr: ""
