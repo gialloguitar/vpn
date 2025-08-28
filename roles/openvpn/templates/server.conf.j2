@@ -24,9 +24,6 @@ auth-user-pass-verify auth.sh via-file
 auth SHA512
 script-security 3
 
-persist-key
-persist-tun
-
 {{ openvpn_server_conf_duplicate_cn }}
 
 {% for push in openvpn_server_conf_push %}

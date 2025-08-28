@@ -18,13 +18,10 @@ cd -
 echo "# $USER
 client
 tls-client
-resolv-retry infinite
 nobind
 verb {{ openvpn_server_conf_verb }}
 dev {{ openvpn_server_conf_dev }}
 remote $SERVER {{ openvpn_server_conf_port }} {{ openvpn_server_conf_proto }}
-persist-key
-persist-tun
 
 <ca>
 $(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/easy-rsa/pki/ca.crt)
