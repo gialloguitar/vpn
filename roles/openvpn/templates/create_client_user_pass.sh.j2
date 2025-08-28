@@ -17,7 +17,6 @@ openssl rand -hex 4 >> /etc/openvpn/client/$USER
 echo "# $USER
 client
 reneg-sec 0
-resolv-retry infinite
 remote-cert-tls server
 nobind
 verb {{ openvpn_server_conf_verb }}
@@ -25,8 +24,6 @@ dev {{ openvpn_server_conf_dev }}
 remote $SERVER {{ openvpn_server_conf_port }} {{ openvpn_server_conf_proto }}
 auth-user-pass
 auth SHA512
-persist-key
-persist-tun
 
 <ca>
 $(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/easy-rsa/pki/ca.crt)
