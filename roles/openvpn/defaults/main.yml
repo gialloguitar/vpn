@@ -26,7 +26,7 @@ openvpn_server_conf_push:
   - "route 172.16.8.0 255.255.252.0"
 openvpn_server_conf_duplicate_cn: duplicate-cn
 openvpn_server_conf_keepalive: 10 120
-openvpn_server_conf_cipher: AES-128-GCM
+openvpn_server_conf_cipher: "AES-256-GCM:AES-128-GCM"
 openvpn_server_conf_status: /var/log/openvpn/openvpn-status.log
 openvpn_server_conf_log: /var/log/openvpn/openvpn.log
 openvpn_server_conf_log_append: /var/log/openvpn/openvpn.log

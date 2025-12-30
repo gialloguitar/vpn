@@ -1,30 +1,79 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -ex
-
-if [ "$1" = "" ]; then
-  echo "Usage: $0 <username>"
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <username>" >&2
   exit 1
 fi
 
-USER=$1
-SERVER={{ openvpn_server_addr }}
+USER="$1"
+SERVER="{{ openvpn_server_addr }}"
 
-touch /etc/openvpn/client/$USER
-echo $USER > /etc/openvpn/client/$USER
-openssl rand -hex 4 >> /etc/openvpn/client/$USER
+CLIENT_DIR="/etc/openvpn/client"
+EASYRSA_DIR="/etc/openvpn/easy-rsa"
+OVPN_FILE="${CLIENT_DIR}/${USER}.ovpn"
+PASS_FILE="${CLIENT_DIR}/${USER}"
 
-echo "# $USER
+mkdir -p "$CLIENT_DIR"
+umask 077
+
+# Create/update user password file (username + random suffix)
+: > "$PASS_FILE"
+{
+  echo "$USER"
+  openssl rand -hex 4
+} >> "$PASS_FILE"
+
+# Build client cert/key (will fail if already exists unless easyrsa is configured otherwise)
+pushd "$EASYRSA_DIR" >/dev/null
+./easyrsa build-client-full "$USER" nopass
+popd >/dev/null
+
+CA_FILE="${EASYRSA_DIR}/pki/ca.crt"
+CERT_FILE="${EASYRSA_DIR}/pki/issued/${USER}.crt"
+KEY_FILE="${EASYRSA_DIR}/pki/private/${USER}.key"
+
+if [[ ! -s "$CA_FILE" || ! -s "$CERT_FILE" || ! -s "$KEY_FILE" ]]; then
+  echo "ERROR: Missing CA/cert/key files for user ${USER}" >&2
+  exit 2
+fi
+
+# Extract PEM blocks (avoid openssl -text style output)
+CA_PEM="$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' "$CA_FILE")"
+CERT_PEM="$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' "$CERT_FILE")"
+KEY_PEM="$(sed -n '/BEGIN .*PRIVATE KEY/,/END .*PRIVATE KEY/p' "$KEY_FILE")"
+
+cat > "$OVPN_FILE" <<EOF
+# Easy-RSA Type: client
+# Name: ${USER}
+
 client
-reneg-sec 0
 remote-cert-tls server
 nobind
 verb {{ openvpn_server_conf_verb }}
 dev {{ openvpn_server_conf_dev }}
-remote $SERVER {{ openvpn_server_conf_port }} {{ openvpn_server_conf_proto }}
+proto {{ openvpn_server_conf_proto }}
+remote ${SERVER} {{ openvpn_server_conf_port }}
+
 auth-user-pass
 auth SHA512
+reneg-sec 0
+
+data-ciphers {{ openvpn_server_conf_cipher }}
 
 <ca>
-$(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/easy-rsa/pki/ca.crt)
-</ca>" > /etc/openvpn/client/$USER.ovpn
+${CA_PEM}
+</ca>
+
+<cert>
+${CERT_PEM}
+</cert>
+
+<key>
+${KEY_PEM}
+</key>
+EOF
+
+chmod 600 "$OVPN_FILE" "$PASS_FILE"
+echo "Wrote: $OVPN_FILE"
+echo "Auth file: $PASS_FILE"

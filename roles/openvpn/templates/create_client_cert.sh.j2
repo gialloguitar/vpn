@@ -11,8 +11,7 @@ USER=$1
 SERVER={{ openvpn_server_addr }}
 
 cd /etc/openvpn/easy-rsa
-./easyrsa gen-req $USER nopass
-./easyrsa sign-req client $USER
+./easyrsa build-client-full $USER nopass
 cd -
 
 echo "# $USER
@@ -22,6 +21,7 @@ nobind
 verb {{ openvpn_server_conf_verb }}
 dev {{ openvpn_server_conf_dev }}
 remote $SERVER {{ openvpn_server_conf_port }} {{ openvpn_server_conf_proto }}
+data-ciphers {{ openvpn_server_conf_cipher }}
 
 <ca>
 $(sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' /etc/openvpn/easy-rsa/pki/ca.crt)

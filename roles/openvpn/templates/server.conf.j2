@@ -10,7 +10,6 @@ topology {{ openvpn_server_conf_topology }}
 server {{ openvpn_server_conf_server }}
 client-config-dir {{ openvpn_server_conf_client_config_dir }}
 keepalive {{ openvpn_server_conf_keepalive }}
-cipher {{ openvpn_server_conf_cipher }}
 status {{ openvpn_server_conf_status }}
 log {{ openvpn_server_conf_log }}
 log-append {{ openvpn_server_conf_log_append }}
@@ -18,9 +17,10 @@ tun-mtu {{ openvpn_server_conf_tun_mtu }}
 verb {{ openvpn_server_conf_verb }}
 explicit-exit-notify {{ openvpn_server_conf_explicit_exit_notify }}
 
-verify-client-cert none
+verify-client-cert require
 username-as-common-name
 auth-user-pass-verify auth.sh via-file
+data-ciphers {{ openvpn_server_conf_cipher }}
 auth SHA512
 script-security 3
 
